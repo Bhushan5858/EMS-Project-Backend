@@ -59,9 +59,9 @@ export const login = async (email, password) => {
         isEmployee: user.isEmployee
     };
     //send name, email and timestamp
-   if (user.role === "admin") {
-     await sendAdminLoginEmail(user.email, user.name, user.email);
-   }
+//    if (user.role === "admin") {
+//      await sendAdminLoginEmail(user.email, user.name, user.email);
+//    }
     return {
         status: true,
         statusCode: 200,
