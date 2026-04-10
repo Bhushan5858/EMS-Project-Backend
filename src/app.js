@@ -5,6 +5,7 @@ import adminRoutes from './routes/admin.Routes.js';
 import managerRoutes from './routes/manager.routes.js';
 import employeeRoutes from './routes/employee.Routes.js';
 import authRoutes from './common/auth/auth.routes.js';
+import attendanceRoutes from './common/routes/attendance.routes.js';
 const app = express();
 
 app.use(express.json());
@@ -25,5 +26,6 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/manager', managerRoutes);
 app.use('/employee', employeeRoutes);
+app.use('/attendance', attendanceRoutes);
 
 export default app;
