@@ -1,6 +1,5 @@
 import userModel from "../../common/models/user.Model.js";
 import departmentModel from "../../common/models/department.Model.js";
-import employeeModel from "../../common/models/employee.Model.js";
 
 
 export const addDepartment = async (name) => {
