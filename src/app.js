@@ -8,12 +8,12 @@ import authRoutes from './common/auth/auth.routes.js';
 const app = express();
 
 app.use(express.json());
-app.use(cors(
-    {
-        origin: 'https://ems-project-frontend-dmq9.vercel.app',
-        credentials: true
-    }
-));
+app.use(
+  cors({
+    origin: "https://bhushan-ems-frotend.vercel.app",
+    credentials: true,
+  }),
+);
 //rete limiting
 app.use(rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutes
