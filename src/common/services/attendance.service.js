@@ -3,7 +3,7 @@ import User from "../models/user.Model.js";
 
 export const togglePunch = async (userId) => {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
@@ -68,8 +68,8 @@ export const togglePunch = async (userId) => {
 };
 
 export const getMyAttendance = async (userId, month, year) => {
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 0);
+  const startDate = new Date(Date.UTC(year, month, 1));
+  const endDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
   return await Attendance.find({
     user: userId,
@@ -79,7 +79,7 @@ export const getMyAttendance = async (userId, month, year) => {
 
 export const getDepartmentAttendance = async (departmentId, date) => {
   const queryDate = new Date(date);
-  queryDate.setHours(0, 0, 0, 0);
+  queryDate.setUTCHours(0, 0, 0, 0);
 
   return await Attendance.find({
     departmentId,
@@ -89,7 +89,7 @@ export const getDepartmentAttendance = async (departmentId, date) => {
 
 export const getAllAttendance = async (date) => {
   const queryDate = new Date(date);
-  queryDate.setHours(0, 0, 0, 0);
+  queryDate.setUTCHours(0, 0, 0, 0);
 
   return await Attendance.find({
     date: queryDate,

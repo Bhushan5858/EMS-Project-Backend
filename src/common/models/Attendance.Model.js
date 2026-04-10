@@ -47,9 +47,8 @@ const attendanceSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to calculate totalMinutes from logs if needed
-attendanceSchema.pre("save", function (next) {
+attendanceSchema.pre("save", async function () {
   this.totalMinutes = this.logs.reduce((acc, log) => acc + (log.durationMinutes || 0), 0);
-  next();
 });
 
 export default mongoose.model("Attendance", attendanceSchema);
