@@ -1,7 +1,21 @@
 import userModel from "../../common/models/user.Model.js";
 import departmentModel from "../../common/models/department.Model.js";
+import { getCache, setCache } from "../../common/utils/cacheUtils.js";
 
 export const getStats = async () => {
+    // 0. Check Cache
+    const CACHE_KEY = "admin_dashboard_stats";
+    const cachedData = await getCache(CACHE_KEY);
+    
+    if (cachedData) {
+        return {
+            status: true,
+            statusCode: 200,
+            message: "Stats fetched successfully (from cache)",
+            data: cachedData
+        };
+    }
+
     // 1. User Stats
     const totalUsers = await userModel.countDocuments();
     const activeUsers = await userModel.countDocuments({ isActive: true });
@@ -35,6 +49,9 @@ export const getStats = async () => {
         avgSalary: salaryStats[0]?.avgSalary || 0
     };
 
+    // 5. Store in Cache for 5 minutes (300 seconds)
+    await setCache(CACHE_KEY, stats, 300);
+
     return {
         status: true,
         statusCode: 200,
@@ -42,3 +59,4 @@ export const getStats = async () => {
         data: stats
     };
 };
+
