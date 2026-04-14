@@ -9,6 +9,7 @@ import attendanceRoutes from './common/routes/attendance.routes.js';
 const app = express();
 
 app.use(express.json());
+
 app.use(
   cors({
     origin: ["https://bhushan-ems-frotend.vercel.app", "http://localhost:5173"],
