@@ -228,6 +228,10 @@ export const assignDepartment = async (departmentId, userData) => {
     // Invalidate caches
     await invalidateUserCache(userId, user.role);
 
+    // Invalidate department caches
+    await delCache("departments_all");
+    await delCache(`department_id:${departmentId}`);
+
     return {
         status: true,
         statusCode: 200,
@@ -275,10 +279,14 @@ export const removeDepartmentUser = async (departmentId, userId) => {
     // Invalidate caches
     await invalidateUserCache(userId, user.role);
 
+    // Invalidate department caches
+    await delCache("departments_all");
+    await delCache(`department_id:${departmentId}`);
+
     return {
         status: true,
         statusCode: 200,
         message: "User removed from department successfully",
         updatedUser
     };
-};
+};

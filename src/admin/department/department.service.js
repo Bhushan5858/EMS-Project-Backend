@@ -1,5 +1,14 @@
 import userModel from "../../common/models/user.Model.js";
 import departmentModel from "../../common/models/department.Model.js";
+import { getCache, setCache, delCache } from "../../common/utils/cacheUtils.js";
+
+// Helper to invalidate department caches
+const invalidateDepartmentCache = async (departmentId = null) => {
+    const keys = ["departments_all"];
+    if (departmentId) keys.push(`department_id:${departmentId}`);
+    
+    await Promise.all(keys.map(key => delCache(key)));
+};
 
 
 export const addDepartment = async (name) => {
@@ -17,6 +26,10 @@ export const addDepartment = async (name) => {
 
     // create department
     const department = await departmentModel.create({ name: newName});
+
+    // Invalidate cache
+    await invalidateDepartmentCache();
+
     return {
         status: true,
         statusCode: 200,
@@ -27,6 +40,19 @@ export const addDepartment = async (name) => {
 
 
 export const getDepartments = async () => {
+    const CACHE_KEY = "departments_all";
+    
+    // Check cache
+    const cachedDepartments = await getCache(CACHE_KEY);
+    if (cachedDepartments) {
+        return {
+            status: true,
+            statusCode: 200,
+            message: "Departments fetched successfully (from cache)",
+            data: cachedDepartments
+        };
+    }
+
     // Aggregation to count employees and find manager for each department
     const departments = await departmentModel.aggregate([
         {
@@ -73,6 +99,9 @@ export const getDepartments = async () => {
         }
     ]);
 
+    // Set cache
+    await setCache(CACHE_KEY, departments, 3600);
+
     return {
         status: true,
         statusCode: 200,
@@ -83,6 +112,18 @@ export const getDepartments = async () => {
 
 
 export const getDepartmentDetails = async (departmentId) => {
+    const CACHE_KEY = `department_id:${departmentId}`;
+
+    // Check cache
+    const cachedDetails = await getCache(CACHE_KEY);
+    if (cachedDetails) {
+        return {
+            status: true,
+            statusCode: 200,
+            message: "Department details fetched successfully (from cache)",
+            data: cachedDetails
+        };
+    }
 
     const department = await departmentModel.findById(departmentId);
 
@@ -97,21 +138,23 @@ export const getDepartmentDetails = async (departmentId) => {
     // manager of this department with user data
     const manager = await userModel.findOne({ departmentId: department._id,role: "manager", isEmployee: true });
 
-    
-
     // employees with user data
     const employees = await userModel.find({ departmentId: department._id, isEmployee: true ,role: "employee"});
 
+    const responseData = {
+        department,
+        manager,
+        employees
+    };
+
+    // Set cache
+    await setCache(CACHE_KEY, responseData, 3600);
     
     return {
         status: true,
         statusCode: 200,
         message: "Department details fetched successfully",
-        data: {
-            department,
-            manager,
-            employees
-        }
+        data: responseData
     };
 };
 
@@ -142,6 +185,10 @@ export const updateDepartment = async (departmentId, name) => {
 
     // update department without manager
     const updatedDepartment = await departmentModel.updateOne({ _id: departmentId }, { $set: { name } });
+
+    // Invalidate cache
+    await invalidateDepartmentCache(departmentId);
+
     return {
         status: true,
         statusCode: 200,
@@ -168,6 +215,9 @@ export const deleteDepartment = async (departmentId) => {
 
     // delete department
     const deletedDepartment = await departmentModel.deleteOne({ _id: departmentId });
+    // Invalidate cache
+    await invalidateDepartmentCache(departmentId);
+
     return {
         status: true,
         statusCode: 200,
